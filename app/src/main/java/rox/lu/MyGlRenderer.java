@@ -8,11 +8,12 @@ import android.opengl.GLES11Ext;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import java.nio.IntBuffer;
+import java.util.*;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import com.google.android.exoplayer2.*;
 
-public class MyGlRenderer implements GLSurfaceView.Renderer {
+public class MyGlRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
 
   /* -------------------------------------------------------------- */
 
@@ -106,15 +107,9 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
         && 0 != decoded_tex.get(0))
       {
         decoded_surf = new SurfaceTexture(decoded_tex.get(0));
-        decoded_surf.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-            @Override
-            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-              Log.v("msg", "> onFrameAvailable");
-            }
-          });
-        
+        decoded_surf.setOnFrameAvailableListener(this);
         exo_player.setVideoSurface(new Surface(decoded_surf));
-    }
+      }
     
     Log.v("msg", "Vertex shader: " +fullscreen_vs.getId());
     Log.v("msg", "Fragment shader: " +fullscreen_fs.getId());
@@ -145,5 +140,12 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
   public void setExoPlayer(SimpleExoPlayer ep) {
     exo_player = ep;
     Log.v("msg", "Setting ExoPlayer.");
+  }
+
+  /* `SurfaceTexture.OnFrameAvailableListener`                      */
+  /* -------------------------------------------------------------- */
+  @Override
+  public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+    //Log.v("msg", "> onFrameAvailable");
   }
 };
