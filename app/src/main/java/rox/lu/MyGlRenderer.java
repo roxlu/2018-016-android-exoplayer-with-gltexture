@@ -6,6 +6,7 @@ import android.util.Log;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLES11Ext;
 import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import java.nio.IntBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -25,7 +26,9 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
     + "}\n";
 
   private static final String FULLSCREEN_FS = ""
+    + "#extension GL_OES_EGL_image_external : require\n"
     + "precision mediump float;\n"
+    + "uniform samplerExternalOES u_tex;\n"
     + "varying vec2 v_tex;\n"
     + "void main() {\n"
     + " gl_FragColor = vec4(v_tex.x, v_tex.y, 1.0, 1.0);\n"
@@ -45,6 +48,10 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
   /* -------------------------------------------------------------- */
   
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+
+    if (null == exo_player) {
+      throw new RuntimeException("exo_player member is null; should have been set.");
+    }
     
     GLES20.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -101,6 +108,8 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
               Log.v("msg", "> onFrameAvailable");
             }
           });
+        
+        exo_player.setVideoSurface(new Surface(decoded_surf));
     }
     
     Log.v("msg", "Vertex shader: " +fullscreen_vs.getId());
@@ -110,6 +119,9 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
   }
 
   public void onDrawFrame(GL10 unused) {
+
+    decoded_surf.updateTexImage(); /* only necessary when we received a new video frame. */
+    
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     fullscreen_prog.use();
     fullscreen_vbo.bind();
