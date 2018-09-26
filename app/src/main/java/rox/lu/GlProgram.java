@@ -77,6 +77,19 @@ public class GlProgram {
     
     GLES20.glBindAttribLocation(id, loc, name);
   }
+
+  public int getUniformLocation(String name) {
+
+    if (-1 == id) {
+      throw new RuntimeException("Cannot get uniform location for `" +name +"` because the program is not created yet. Call `create()` first.");
+    }
+
+    return GLES20.glGetUniformLocation(id, name);
+  }
+
+  public void uniform1i(String name, int value) {
+    GLES20.glUniform1i(getUniformLocation(name), value);
+  }
     
   /* -------------------------------------------------------------- */
   

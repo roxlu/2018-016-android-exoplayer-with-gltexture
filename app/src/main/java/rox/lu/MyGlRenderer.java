@@ -31,7 +31,9 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
     + "uniform samplerExternalOES u_tex;\n"
     + "varying vec2 v_tex;\n"
     + "void main() {\n"
-    + " gl_FragColor = vec4(v_tex.x, v_tex.y, 1.0, 1.0);\n"
+    + "  vec4 tc = texture2D(u_tex, v_tex);\n"
+    + "  gl_FragColor = vec4(v_tex.x, v_tex.y, 1.0, 1.0);\n"
+    + "  gl_FragColor.rgb = tc.rgb;\n"
     + "}"
     + "";
 
@@ -73,15 +75,17 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
       fullscreen_prog.bindAttribLocation("a_pos", 0);
       fullscreen_prog.bindAttribLocation("a_tex", 1);
       fullscreen_prog.link();
+      fullscreen_prog.use();
+      fullscreen_prog.uniform1i("u_tex", 0);
     }
 
     if (null == fullscreen_vbo) {
       
       float[] verts = {
-        -1.0f,  1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f,  1.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f
+        -1.0f,  1.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 1.0f,
+        1.0f,  1.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 1.0f, 1.0f
       };
 
       fullscreen_vbo = new GlVbo();
@@ -123,6 +127,8 @@ public class MyGlRenderer implements GLSurfaceView.Renderer {
     decoded_surf.updateTexImage(); /* only necessary when we received a new video frame. */
     
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, decoded_tex.get(0));
     fullscreen_prog.use();
     fullscreen_vbo.bind();
     fullscreen_prog.enableAttrib(0);
